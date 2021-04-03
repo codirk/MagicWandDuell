@@ -70,7 +70,6 @@ char *element[] = {
   "Air                 "
  };
  
-
  char *charms[] = {
   "Spongify            ", 
   "Expelliarmus        ",
@@ -84,7 +83,7 @@ char *element[] = {
   "Rictusempra         ",
   "Lumos               ",
   "Diffindo            ",
-  "Rictusempra         "
+  "Ridiculus           "
  };
  char *moves[] = {
   "rotate anticlockwise", 

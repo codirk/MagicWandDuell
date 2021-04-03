@@ -112,7 +112,7 @@ SoftwareSerial mySoftwareSerial(D_12, D_13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
-#define s_welcome1  1
+#define s_welcome1  15
 #define s_welcome2  2
 #define s_welcome3  3
 #define s_readSet   4
@@ -122,10 +122,8 @@ void printDetail(uint8_t type, int value);
 
 
 
-//LiquidCrystal_I2C lcd(0x27, 20, 4); //Hier wird festgelegt um was für einen Display es sich handelt. 
-LiquidCrystal_I2C lcd(0x27, 16, 2); //Hier wird festgelegt um was für einen Display es sich handelt. 
-
-
+LiquidCrystal_I2C lcd(0x27, 20, 4); //Hier wird festgelegt um was für einen Display es sich handelt. 
+//LiquidCrystal_I2C lcd(0x27, 16, 2); //Hier wird festgelegt um was für einen Display es sich handelt. 
 
 unsigned long delaytime=500;
 
@@ -227,38 +225,126 @@ int songIdx=0;
 
 int idx;
 int p1Idx=0;
+boolean p1Set=false;
 int p2Idx=0;
+boolean p2Set=false;
 
-char *charms[] = {
-//char char myStrings[10][16]= {
-//const char* const myStrings[]= {
-  "Spongify    ", 
-  "Expelliarmus",
-  "Duro        ",
-  "Impedimenta ",
-  "Protego     ",
-  "Reducio     ",
-  "Stupefy     ",
-  "Stupefy Duo ",
-  "Oppugno     ",
-  "Rictusempra ",
-  "Lumos       ",
-  "Diffindo    ",
-  "Rictusempra "
+char *element[] = {
+  "Fire                ",
+  "Water               ",
+  "Ground",
+  "Air                 "
  };
+ 
+ char *charms[] = {
+  "Spongify            ", 
+  "Expelliarmus        ",
+  "Duro                ",
+  "Impedimenta         ",
+  "Protego             ",
+  "Reducio             ",
+  "Stupefy             ",
+  "Stupefy Duo         ",
+  "Oppugno             ",
+  "Rictusempra         ",
+  "Lumos               ",
+  "Diffindo            ",
+  "Ridiculus           "
+ };
+ char *moves[] = {
+  "rotate anticlockwise", 
+  "rotate clockwise    ",
+  "flick upwards       ",
+  "flick downwards     ",
+  "flick left          ",
+  "flick right         ",
+  "tab on top          ",
+  "tab on side         ",
+  "big switch          ",
+  "push forward        ",
+  "double tap on top   ",
+  "double tap on side  ",
+  "pull back           "
+};
+char *ticks[] = {
+  "(1) ", 
+  "(2) ",
+  "(3) ",
+  "(4) ",
+  "(5) ",
+  "(6) ",
+  "(7) ",
+  "(8) ",
+  "(9) ",
+  "(10)",
+  "(11)",
+  "(12)",
+  "(13)"};
+
+long codes[]={
+  0x68B90,  
+  0x68B91,  
+  0x68B92,  
+  0x68B93,  
+  0x68B94,  
+  0x68B95,  
+  0x68B96,  
+  0x68B97,
+  0x68B98,
+  0x68B99,
+  0x68BA0,
+  0x68BA1,
+  0x68BA2,
+  0x68C90,  
+  0x68C91,  
+  0x68C92,  
+  0x68C93,  
+  0x68C94,  
+  0x68C95,  
+  0x68C96,  
+  0x68C97,
+  0x68C98,
+  0x68C99,
+  0x68CA0,
+  0x68CA1,
+  0x68CA2
+};
  
 void doLcd(long messageIDx){ 
 
   int charmsIdx=messageIDx>12?messageIDx-13:messageIDx;
-  
+  Serial.println(messageIDx, DEC);
+        
   lcd.setCursor(0, 0);//Hier wird die Position des ersten Zeichens festgelegt. In diesem Fall bedeutet (0,0) das erste Zeichen in der ersten Zeile. 
   lcd.print(charms[charmsIdx]); 
-  lcd.setCursor(0, 1);//Hier wird die Position des ersten Zeichens festgelegt. In diesem Fall bedeutet (0,0) das erste Zeichen in der ersten Zeile. 
+  Serial.println(charms[charmsIdx]); 
+  lcd.setCursor(0, 1);
   if(messageIDx<13){
-    lcd.print("Wand 1"); 
+    lcd.print("Wand 1");
   }else{
-    lcd.print("Wand 2"); 
+    lcd.print("Wand 2");
+  } 
+  if(charmsIdx<3){
+    lcd.print(" Fire  ");
+  }else if(charmsIdx<6){
+    lcd.print(" Water ");  
+  }else if(charmsIdx<9){
+    lcd.print(" Ground");
+  }else {
+    lcd.print(" Air   ");
   }
+
+
+  lcd.setCursor(0, 2);// In diesem Fall bedeutet (0,1) das erste Zeichen in der zweiten Zeile. 
+  lcd.print(moves[charmsIdx]); 
+  Serial.println(moves[charmsIdx]); 
+  lcd.setCursor(0, 3);// In diesem Fall bedeutet (0,1) das erste Zeichen in der zweiten Zeile. 
+  lcd.print(ticks[charmsIdx]); 
+  Serial.print(ticks[charmsIdx]); 
+/*  lcd.print(codes[messageIDx], HEX); 
+  Serial.println(codes[messageIDx], HEX); 
+//*/
+  
   //lcd.print(messageIDx); 
   
   //lcd.setCursor(0, 1);// In diesem Fall bedeutet (0,1) das erste Zeichen in der zweiten Zeile. 
@@ -267,15 +353,14 @@ void doLcd(long messageIDx){
   //myDFPlayer.next();
   
   //  myDFPlayer.playFolder(1, 1); 
- // myDFPlayer.playFolder(3,charmsIdx);  //Play the first mp3
+ // myDFPlayer.playFolder(1,charmsIdx+1);  //Play the first mp3
  // myDFPlayer.play(3,charmsIdx);  //Play the first mp3
- myDFPlayer.play(charmsIdx+1); 
-  
+        myDFPlayer.play(charmsIdx+1); 
   Serial.println(charmsIdx, DEC); 
   //myDFPlayer.start();
-  if (myDFPlayer.available()) {
-    printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-  }
+  //if (myDFPlayer.available()) {
+  //  printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
+  //}
     
 } 
 
@@ -293,41 +378,6 @@ void doLedControl1(byte figure[]) {
   delay(20);
 }
 
-/*
-void hello(){
-  lc0.setChar(0,7,'H',false);
-  lc0.setChar(0,6,'E',false);
-  lc0.setChar(0,5,'L',false);
-  lc0.setChar(0,4,'L',false);
-  lc0.setChar(0,3,'0',false);
-  lc0.setChar(0,2,'.',false);
-  lc0.setChar(0,1,'.',false);
-  lc0.setChar(0,0,'.',false);
-  delay(delaytime+1000);
-  lc0.clearDisplay(0);
-  delay(delaytime);
-  lc0.setDigit(0,7,1,false);
-  delay(delaytime);
-  lc0.setDigit(0,6,2,false);
-  delay(delaytime);
-  lc0.setDigit(0,5,3,false);
-  delay(delaytime);
-  lc0.setDigit(0,4,4,false);
-  delay(delaytime);
-  lc0.setDigit(0,3,5,false);
-  delay(delaytime);
-  lc0.setDigit(0,2,6,false);
-  delay(delaytime);
-  lc0.setDigit(0,1,7,false);
-  delay(delaytime);
-  lc0.setDigit(0,0,8,false);
-  delay(1500);
-  lc0.clearDisplay(0);
-  delay(delaytime);
-}
-*/
-
-
 void doDFPlayer() {
   static unsigned long timer = millis();
   if (millis() - timer > 9000) {
@@ -336,9 +386,9 @@ void doDFPlayer() {
     // myDFPlayer.play(1); 
     //  delay(9000);
   }
-  if (myDFPlayer.available()) {
-    printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-  }
+ // if (myDFPlayer.available()) {
+ //   printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
+ // }
 }
 
 
@@ -475,6 +525,14 @@ void doIRRec() {
       }     
     }
 
+    if(p1Idx >0 && p1Set==false){
+        myDFPlayer.play(p1Idx); 
+        p1Set=true; 
+    }
+    if(p2Idx >0 && p2Set==false){
+        myDFPlayer.play(p2Idx);  
+        p2Set=true;
+    }
     
     if( p1Idx >0 && p2Idx >0){
       int result = check(p1Idx,p2Idx);
@@ -490,12 +548,9 @@ void doIRRec() {
       }
       p1Idx=0;
       p2Idx=0;
+      p1Set=false;
+      p2Set=false;
     }
-
-
-
-
-    
      
     doLcd(idx);
     
@@ -537,7 +592,7 @@ void doIRRec() {
 }
 
 
-
+/*
 
 void printDetail(uint8_t type, int value){
   switch (type) {
@@ -598,4 +653,4 @@ void printDetail(uint8_t type, int value){
     default:
       break;
   }
-}
+}(/*/
